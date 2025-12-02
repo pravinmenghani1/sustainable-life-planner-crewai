@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 Sustainable Life Planner - AI Agent Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .agent-status {
+            margin-top: 20px;
+        }
+        
+        .agent-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border-left: 4px solid #e0e0e0;
+        }
+        
+        .agent-item.active {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+        
+        .agent-item.complete {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+        
+        .agent-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .agent-info h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .agent-info p {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .result-card {
+            grid-column: 1 / -1;
+        }
+        
+        .result-content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Sustainable Life Planner</h1>
+            <p>AI-Powered Multi-Agent System for Sustainable Living</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 Your Profile</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>🚗 Transportation</label>
+                        <input type="text" id="transportation" 
+                               placeholder="e.g., gasoline car, 20 km daily commute" 
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>🍽️ Diet</label>
+                        <input type="text" id="diet" 
+                               placeholder="e.g., meat-eating, occasional fast food" 
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>⚡ Energy Usage</label>
+                        <input type="text" id="energy_usage" 
+                               placeholder="e.g., standard home, no solar, AC usage high" 
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>🎯 Goals</label>
+                        <textarea id="goals" 
+                                  placeholder="e.g., reduce carbon footprint by 30% in 6 months" 
+                                  required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="generateBtn">
+                        Generate My Sustainable Plan
+                    </button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>🤖 AI Agents Working</h2>
+                <div class="agent-status">
+                    <div class="agent-item" id="agent1">
+                        <div class="agent-icon">📚</div>
+                        <div class="agent-info">
+                            <h3>Agent 1: Knowledge Expert</h3>
+                            <p>Retrieving sustainability data (RAG)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="agent-item" id="agent2">
+                        <div class="agent-icon">📊</div>
+                        <div class="agent-info">
+                            <h3>Agent 2: Carbon Analyzer</h3>
+                            <p>Calculating your carbon footprint</p>
+                        </div>
+                    </div>
+                    
+                    <div class="agent-item" id="agent3">
+                        <div class="agent-icon">📅</div>
+                        <div class="agent-info">
+                            <h3>Agent 3: Habit Coach</h3>
+                            <p>Creating weekly sustainable routine</p>
+                        </div>
+                    </div>
+                    
+                    <div class="agent-item" id="agent4">
+                        <div class="agent-icon">💡</div>
+                        <div class="agent-info">
+                            <h3>Agent 4: Recommendation Engine</h3>
+                            <p>Generating personalized recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card result-card hidden" id="resultCard">
+                <h2>📋 Your Sustainable Life Plan</h2>
+                <div id="loadingDiv" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>AI Agents are analyzing your profile...</p>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('profileForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultCard = document.getElementById('resultCard');
+        const resultContent = document.getElementById('resultContent');
+        const loadingDiv = document.getElementById('loadingDiv');
+        
+        const agents = ['agent1', 'agent2', 'agent3', 'agent4'];
+        let currentAgent = 0;
+        
+        function resetAgents() {
+            agents.forEach(id => {
+                document.getElementById(id).classList.remove('active', 'complete');
+            });
+            currentAgent = 0;
+        }
+        
+        function animateAgents() {
+            if (currentAgent < agents.length) {
+                const agentId = agents[currentAgent];
+                document.getElementById(agentId).classList.add('active');
+                
+                setTimeout(() => {
+                    document.getElementById(agentId).classList.remove('active');
+                    document.getElementById(agentId).classList.add('complete');
+                    currentAgent++;
+                    animateAgents();
+                }, 3000);
+            }
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                transportation: document.getElementById('transportation').value,
+                diet: document.getElementById('diet').value,
+                energy_usage: document.getElementById('energy_usage').value,
+                goals: document.getElementById('goals').value
+            };
+            
+            // Show loading
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            resultCard.classList.remove('hidden');
+            loadingDiv.classList.remove('hidden');
+            resultContent.textContent = '';
+            
+            // Reset and animate agents
+            resetAgents();
+            animateAgents();
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultContent.textContent = data.result;
+                } else {
+                    resultContent.textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                resultContent.textContent = 'Error: ' + error.message;
+            } finally {
+                loadingDiv.classList.add('hidden');
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate My Sustainable Plan';
+            }
+        });
+        
+        // Set default values
+        document.getElementById('transportation').value = 'gasoline car, 20 km daily commute';
+        document.getElementById('diet').value = 'meat-eating, occasional fast food';
+        document.getElementById('energy_usage').value = 'standard home, no solar, AC usage high';
+        document.getElementById('goals').value = 'reduce carbon footprint by 30% in 6 months';
+    </script>
+</body>
+</html>
